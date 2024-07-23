@@ -1,2 +1,2 @@
 FROM openjdk:17
-RUN {'echo Hello'}
+RUN echo 'Hello'
