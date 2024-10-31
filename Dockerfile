@@ -1,2 +1,3 @@
 FROM alpine
 EXPOSE 8081
+RUN echo $31-10-2024
