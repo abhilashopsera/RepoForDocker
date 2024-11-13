@@ -1,0 +1,48 @@
+name: Parameter Test Pipeline
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Select the environment to deploy'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+development
+staging
+production
+          
+      deploy_region:
+        description: 'Deployment region'
+        required: true
+        default: 'us-east-1'
+      build_number:
+        description: 'Build number'
+        required: false
+        default: '1'
+      test_coverage_threshold:
+        description: 'Test coverage threshold (%)'
+        required: false
+        default: '80'
+      notify_on_failure:
+        description: 'Send notification on failure'
+        required: false
+        default: 'false'
+        type: boolean
+jobs:
+  parameter-test:
+    runs-on: ubuntu-latest
+    steps:
+name: Checkout Code
+        uses: actions/checkout@v2
+name: Display Parameters
+        run: |
+          echo "Environment: ${{ github.event.inputs.environment }}"
+          echo "Deploy Region: ${{ github.event.inputs.deploy_region }}"
+          echo "Build Number: ${{ github.event.inputs.build_number }}"
+          echo "Test Coverage Threshold: ${{ github.event.inputs.test_coverage_threshold }}"
+          echo "Notify on Failure: ${{ github.event.inputs.notify_on_failure }}"
+name: Conditional Notification
+        if: ${{ github.event.inputs.notify_on_failure == 'true' }}
+        run: |
+          echo "Notification on failure is enabled. Sending notification if a failure occurs."
