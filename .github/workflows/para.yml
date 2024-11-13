@@ -1,0 +1,9 @@
+name: Parameter Test Pipeline
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Select the environment to deploy'
+        required: true
+        default: 'staging'
+        type: choice
