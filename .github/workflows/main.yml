@@ -1,4 +1,4 @@
-name: MVN CI Pipeline
+name: MN CI Pipeline
 # Run the workflow on pushes, pull requests to main, and manual dispatch
 on:
   push:
