@@ -1,0 +1,20 @@
+name: Build Docker Image
+on:
+  push:
+    branches:
+      - 1683
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Get Commit SHA
+        id: sha
+        run: echo "::set-output name=commit_sha::$(git rev-parse --short HEAD)"
+      - name: Build Docker Image
+        run: |
+          docker build \
+            --build-arg BASE_IMAGE=python:3.11.7-slim-bullseye \
+            --build-arg APP_VERSION=${{ steps.sha.outputs.commit_sha }} \
+            -t my-app:${{ steps.sha.outputs.commit_sha }} .
