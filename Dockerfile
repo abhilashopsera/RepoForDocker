@@ -1,18 +1,16 @@
-# Use a base image that matches your app's needs
-ARG BASE_IMAGE=python:3.11.7-slim-bullseye
-FROM ${BASE_IMAGE}
-# Set the environment variable for the application version
+# Use the base image
+FROM python:3.11.7-slim-bullseye
+# Set build arguments
+ARG BASE_IMAGE
 ARG APP_VERSION
-ENV APP_VERSION=${APP_VERSION}
-# Display the app version (for debugging purposes)
-RUN echo "Building application version: ${APP_VERSION}"
-# Set the working directory inside the container
+# Print the application version
+RUN echo "Building application version: $APP_VERSION"
+# Install any dependencies (example for Python)
 WORKDIR /app
-# Copy the requirements.txt from the 'app' subdirectory to the container's working directory
-COPY app/requirements.txt .
-# Install dependencies specified in requirements.txt
+COPY requirements.txt .
+# Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
-# Copy the rest of your application code from the 'app' subdirectory
-COPY app/ .
+# Copy the rest of your application code from the repository root
+COPY . .
 # Command to run the application (adjust as necessary)
-CMD ["python", "app.py"]
+CMD ["python", "app.py"]  # Adjust if your main file is not app.py
