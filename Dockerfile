@@ -1,8 +1,6 @@
 # Use the base image
 FROM python:3.11.7-slim-bullseye
 # Set build arguments
-ARG BASE_IMAGE
-ARG APP_VERSION
 # Print the application version
 RUN echo "Building application version: $APP_VERSION"
 # Install any dependencies (example for Python)
