@@ -1,3 +1,4 @@
+#comment
 FROM alpine
 RUN apk add --no-cache curl
 WORKDIR /app
