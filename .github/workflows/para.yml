@@ -11,15 +11,15 @@ on:
       name:
         description: 'Enter your name'
         required: true
-        #default: 'Laila'
+        default: 'Laila'
       environment:
         description: 'Enter the environment (dev, prod, etc.)'
         required: true
-        #default: 'dev'
+        default: 'dev'
       version:
         description: 'Enter the version number'
         required: true
-        #default: '1.0.0'
+        default: '1.0.0'
 jobs:
   echo-parameters:
     runs-on: ubuntu-latest
