@@ -1,4 +1,4 @@
-name: Echo Input Parameters
+name: Echo Input Params
 on:
   push:
     branches:
