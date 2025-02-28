@@ -1,8 +1,6 @@
 #comment1
-FROM alpine
-RUN apk add --no-cache curl
+FROM openjdk:11-jdk
 WORKDIR /app
-COPY . .
-RUN echo "Building the Docker image on $01-nov-2024"
-EXPOSE 8081
-CMD ["sh"]
+# This is the problematic line: Expecting a .war file when the build actually produces a .jar file
+COPY target/sample-app-1.0.0.war /app/app.war
+CMD ["java", "-jar", "/app/app.war"]
