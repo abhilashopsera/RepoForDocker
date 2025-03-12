@@ -1,4 +1,6 @@
-FROM openjdk:17-jdk
+FROM eclipse-temurin:17-jre
 WORKDIR /app
-COPY target/spring-boot-docker.jar /app/app.jar
-CMD ["java", "-jar", "/app/app.jar"]
+# Copy the JAR from the workspace (Assuming Jenkins builds it)
+COPY target/sample-app-1.0.0.jar app.jar
+# Run the Spring Boot application
+ENTRYPOINT ["java", "-jar", "app.jar"]
