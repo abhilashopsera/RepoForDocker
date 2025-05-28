@@ -1,4 +1,3 @@
-#demo
 FROM openjdk:17-jdk
 WORKDIR /app
 COPY target/spring-boot-docker.jar /app/app.jar
