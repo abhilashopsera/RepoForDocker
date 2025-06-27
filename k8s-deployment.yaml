@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: springboot-docker
+  name: springboot-maven
   labels:
-    app: springboot-docker
+    app: springboot-maven
 spec:
   replicas: 1
   selector:
@@ -26,7 +26,7 @@ metadata:
   name: springboot-docker-service
 spec:
   selector:
-    app: springboot-docker
+    app: springboot-maven
   ports:
 protocol: TCP
       port: 80
