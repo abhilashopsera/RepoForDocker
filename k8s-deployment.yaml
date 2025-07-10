@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
 name: springboot-docker
-          image: trialm4wgil.jfrog.io/springboot-docker/master:acc33c53124ec8c33605e17a68e707ff2902daf7
+          image: trialm4wgil.jfrog.io/springboot-docker/master:21cc93010fc2bfd54b22e43c07e7be9b2ec2e255
    ports:
 containerPort: 8080
 ---
