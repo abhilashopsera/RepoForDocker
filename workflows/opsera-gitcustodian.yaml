@@ -1,1 +1,64 @@
-
+name: Opsera GitCustodian Scan
+on:
+  workflow_dispatch:  # Manually trigger from GitHub UI
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    env:
+      PIPELINE_ID: "<YOUR_OPSERA_PIPELINE_ID>"  # Replace with actual ID
+    steps:
+name: Trigger GitCustodian Scan
+        id: trigger
+        run: |
+          echo "Triggering Opsera pipeline..."
+          RESPONSE=$(curl -s -X POST "https://api.opsera.io/pipelines/run-pipeline" \           -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.OPESRA_API_TOKEN }}" \
+            -d "{\"pipelineId\": \"$PIPELINE_ID\"}")
+          echo "Response: $RESPONSE"
+          RUN_COUNT=$(echo "$RESPONSE" | jq -r '.runCount')
+          echo "RUN_COUNT=$RUN_COUNT" >> $GITHUB_ENV
+          echo "::set-output name=run_count::$RUN_COUNT"
+name: Wait for Pipeline Completion
+        run: |
+          echo "Waiting for Opsera pipeline to complete..."
+          for i in {1..15}; do
+            STATUS=$(curl -s -X GET "https://api.opsera.io/pipelines/$PIPELINE_ID/status" \       -H "Authorization: Bearer ${{ secrets.OPESRA_API_TOKEN }}" | jq -r '.status')
+            echo "Pipeline status: $STATUS"
+            if [[ "$STATUS" == "completed" || "$STATUS" == "failed" ]]; then
+              break
+            fi
+            sleep 20
+          done
+name: Get GitCustodian Step Result
+        id: check_result
+        run: |
+          echo "Checking GitCustodian scan result..."
+          STEP_LOGS=$(curl -s -X GET "https://api.opsera.io/pipelines/$PIPELINE_ID/logs/${{ env.RUN_COUNT }}" \
+            -H "Authorization: Bearer ${{ secrets.OPESRA_API_TOKEN }}")
+          echo "Step logs: $STEP_LOGS"
+          STEP_STATUS=$(echo "$STEP_LOGS" | jq -r '.steps[] | select(.tool_identifier=="git_custodian") | .status')
+          echo "GitCustodian Step Status: $STEP_STATUS"
+          echo "step_status=$STEP_STATUS" >> $GITHUB_ENV
+          if [[ "$STEP_STATUS" != "success" ]]; then
+            echo ":x: GitCustodian scan failed or found secrets."
+            echo "::set-output name=result::failed"
+            exit 1
+          else
+            echo ":white_check_mark: GitCustodian scan passed."
+            echo "::set-output name=result::passed"
+          fi
+name: Post Status to GitHub PR (optional)
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const status = process.env.step_status;
+            const message = status === 'success'
+              ? ':white_check_mark: GitCustodian scan passed with no secrets.'
+              : ':x: GitCustodian scan failed or secrets found!';
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });
