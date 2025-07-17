@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: springboot-maven
+  labels:
+    app: springboot-maven
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: springboot-docker
+  template:
+    metadata:
+      labels:
+        app: springboot-docker
+    spec:
+      containers:
+name: springboot-docker
+          image: trialm4wgil.jfrog.io/springboot-docker/master:71bce04fe002b7926b97bfebfe3628d52532b70d
+   ports:
+containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: springboot-docker-service
+spec:
+  selector:
+    app: springboot-maven
+  ports:
+protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: LoadBalancer
