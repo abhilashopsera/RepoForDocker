@@ -1,0 +1,39 @@
+name: Opsera GitCustodian Scan
+on:
+  workflow_dispatch:
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    env:
+      PIPELINE_ID: ${{ secrets.OPESRA_PIPELINE_ID }}
+      RUN_COUNT: "1"  # or dynamically fetched if needed
+    steps:
+      - name: Trigger GitCustodian Pipeline
+        run: |
+          echo "Triggering Opsera pipeline..."
+          curl -X POST "https://api.opsera.io/pipelines/$PIPELINE_ID/run" \           -H "Authorization: Bearer ${{ secrets.OPESRA_API_TOKEN }}"
+      - name: Wait for Pipeline Completion
+        run: |
+          echo "Waiting for Opsera pipeline to complete..."
+          for i in {1..15}; do
+            STATUS=$(curl -s -X GET "https://api.opsera.io/pipelines/$PIPELINE_ID/status" \       -H "Authorization: Bearer ${{ secrets.OPESRA_API_TOKEN }}" | jq -r '.status')
+            echo "Pipeline status: $STATUS"
+            if [[ "$STATUS" == "completed" || "$STATUS" == "failed" ]]; then
+              break
+            fi
+            sleep 15
+          done
+      - name: Fetch and Print GitCustodian Step Result
+        run: |
+          echo "Fetching GitCustodian result logs..."
+          STEP_LOGS=$(curl -s -X GET "https://api.opsera.io/pipelines/$PIPELINE_ID/logs/${RUN_COUNT}" \ -H "Authorization: Bearer ${{ secrets.OPESRA_API_TOKEN }}")
+          echo "=== GitCustodian Step Logs ==="
+          echo "$STEP_LOGS" | jq '.steps[] | select(.tool_identifier=="git_custodian")'
+          STEP_STATUS=$(echo "$STEP_LOGS" | jq -r '.steps[] | select(.tool_identifier=="git_custodian") | .status')
+          echo "GitCustodian Step Status: $STEP_STATUS"
+          if [[ "$STEP_STATUS" != "success" ]]; then
+            echo ":x: GitCustodian scan failed or secrets found!"
+            exit 1
+          else
+            echo ":white_check_mark: GitCustodian scan passed. No secrets found."
+          fi
