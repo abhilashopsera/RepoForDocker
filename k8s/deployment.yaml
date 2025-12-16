@@ -19,3 +19,4 @@ name: springboot-docker
           image: trialm4wgil.jfrog.io/springboot-docker/master:71bce04fe002b7926b97bfebfe3628d52532b70d
    ports:
 containerPort: 8080
+containerPort: 8080
