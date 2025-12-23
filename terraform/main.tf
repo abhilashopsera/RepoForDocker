@@ -22,3 +22,4 @@ resource "aws_s3_bucket" "docker_repo_bucket_2" {
   }
 }
 #test
+#teste2
