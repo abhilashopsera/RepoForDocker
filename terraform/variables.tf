@@ -1,4 +1,4 @@
-variable "aws_regoin" {
+variable "aws_region" {
   type = string
 }
 
