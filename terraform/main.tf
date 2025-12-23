@@ -11,3 +11,13 @@ resource "aws_s3_bucket" "docker_repo_bucket" {
     Environment = "dev"
   }
 }
+
+resource "aws_s3_bucket" "docker_repo_bucket_2" {
+  bucket = "${var.bucket_name}-extra"
+  acl    = "private"
+
+  tags = {
+    Name        = "docker-repo-s3-bucket-extra"
+    Environment = "dev"
+  }
+}
