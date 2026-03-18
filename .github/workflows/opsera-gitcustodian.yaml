@@ -1,6 +1,10 @@
 name: Opsera GitCustodian Scan
 on:
   workflow_dispatch:
+    inputs:
+      trigger:
+        description:  'Trigger from Opsera'
+        required: false
 jobs:
   scan:
     runs-on: ubuntu-latest
