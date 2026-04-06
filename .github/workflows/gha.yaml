@@ -1,92 +1,60 @@
-name: Disable All Opsera Pipeline Steps
+name: Update Opsera Pipeline via API
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:
 
 jobs:
-  disable-steps:
-    runs-on: ubuntu-latest
+  update-pipeline:
+    runs-on: ubuntu-latest
 
-    env:
-      OPSERA_URL: https://app.opsera.io
+    env:
+      OPSERA_URL: https://app.opsera.io
 
-    steps:
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-name: Checkout repo
-        uses: actions/checkout@v4
+      - name: Create payload
+        run: |
+          cat <<EOF > payload.json
+          {
+            "action": "update",
+            "type": "pipeline",
+            "data": {
+              "_id": "67dd225c0c8c038d5ca3bf2d",
+              "name": "KYC-Opsera-Pipeline",
+              "steps": [
+                {
+                  "name": "Maven Build",
+                  "active": false
+                },
+                {
+                  "name": "Docker Build",
+                  "active": false
+                },
+                {
+                  "name": "Docker Push",
+                  "active": false
+                },
+                {
+                  "name": "Argo Deploy",
+                  "active": false
+                },
+                {
+                  "name": "Approval gate",
+                  "active": false
+                }
+              ]
+            }
+          }
+          EOF
 
+          echo "Payload created:"
+          cat payload.json
 
-name: Create payload dynamically
-        run: |
-          cat <<EOF > payload.json
-          {
-            "action": "update",
-            "type": "pipeline",
-            "data": {
-              "_id": "67dd225c0c8c038d5ca3bf2d",
-              "name": "KYC-Opsera-Pipeline",
-              "steps": [
-                {
-                  "name": "Maven Build",
-                  "stepId": "5ec7c8cedc73d971e2860b68",
-                  "tool": $(cat <<'INNER'
-                  {
-                    "tool_identifier": "jenkins"
-                  }
-INNER
-                  ),
-                  "active": false
-                },
-                {
-                  "name": "Docker Push",
-                  "stepId": "67dd22e36e86b5f8c5f4457f",
-                  "tool": {
-                    "tool_identifier": "jfrog_artifactory_docker"
-                  },
-                  "active": false
-                },
-                {
-                  "name": "Argo CD Deploy",
-                  "stepId": "67dd22e9bb050441892e2f1a",
-                  "tool": {
-                    "tool_identifier": "argo"
-                  },
-                  "active": false
-                },
-                {
-                  "name": "Argo Deploy",
-                  "stepId": "696a311025443fd17c97094f",
-                  "tool": {
-                    "tool_identifier": "argo"
-                  },
-                  "active": false
-                }
-              ]
-            }
-          }
-          EOF
+      - name: Call Opsera API
+        run: |
+          curl -v -X POST "$OPSERA_URL/api/v2/actions"             -H "Content-Type: application/json"             -H "Authorization: Bearer ${{ secrets.OPSERA_API_TOKEN }}"             --data @payload.json             -o response.json
 
-          echo "Payload:"
-          cat payload.json
-
-
-name: Call Opsera API
-        run: |
-          curl -s -w "\nHTTP_STATUS:%{http_code}\n" \
-            -X POST "$OPSERA_URL/api/v2/actions" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${{ secrets.OPSERA_API_TOKEN }}" \
-            --data @payload.json \
-            -o response.json
-
-          echo "==== RESPONSE ===="
-          cat response.json
-
-
-name: Validate response
-        run: |
-          if grep -q "Updating runtime settings" response.json; then
-            echo ":white_check_mark: Steps disabled successfully"
-          else
-            echo ":warning: Check payload or API behavior"
-          fi
+          echo "==== RESPONSE ===="
+          cat response.json
