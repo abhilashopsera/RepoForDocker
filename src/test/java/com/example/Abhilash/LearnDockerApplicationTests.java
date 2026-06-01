@@ -7,7 +7,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 class LearnDockerApplicationTests {
 
 	@Test
-	void contextLoads() {
-	}
-
+void testWithPostgresContainer() {
+    try (PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15")) {
+        postgres.start();
+        assertTrue(postgres.isRunning());
+    }
+}
 }
