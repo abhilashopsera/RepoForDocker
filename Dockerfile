@@ -4,3 +4,4 @@ WORKDIR /app
 COPY target/sample-app-1.0.0.jar app.jar
 # Run the Spring Boot application
 ENTRYPOINT ["java", "-jar", "app.jar"]
+#test
